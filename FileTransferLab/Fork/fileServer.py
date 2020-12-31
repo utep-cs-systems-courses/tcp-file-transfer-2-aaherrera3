@@ -1,47 +1,54 @@
 import socket, sys, re, os 
 from framedSock import framedSend, framedReceive
 
+
+def fileWrite(name, data, sock):
+    name = "(Server)"+name
+    if os.path.isfile(name):
+        framedSend(sock, b"File already in server.", False)
+        return
+    try:
+        with open(name, "wb") as f:
+            f.write(data)
+        f.close()
+        framedSend(sock, b"File Transfered.", False)
+    except Exception as e:
+        print(f"[+] Error: {e}")
+        
+
+
+
 def Main():
     address = ""
-    port = 50000
-    serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverSocket.bind((address,port))
-    serverSocket.listen(5)
+    port = 50001
 
+    serverSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serverSock.bind((address,port))
+    serverSock.listen(5)
 
+    flag = False
 
-    while True:
-        print(f"[+] Waiting For connection:")
-        convSocket, clientAddress = serverSocket.accept()
-        print(f"[+] Connected to {clientAddress}.")
-
-        while convSocket:
+    while not flag:
+        rc = os.fork()
+        if not rc:
             try:
-                fileName = framedReceive(convSocket,False).decode()
-                fileSize = framedReceive(convSocket,False).decode()
+                conn, addr = serverSock.accept()
+                fileName = framedReceive(conn, False)
+                data = framedReceive(conn, False)
 
-                fileName = os.path.basename(fileName)
-                fileSize = int(fileSize)
+                if data:
+                    fileName = fileName.decode()
+                    data = data
 
-                rc = os.fork()
+                    fileWrite(fileName, data, conn)
 
-                if rc < 0: # If fork fails 
-                    os.write(2,("fork failed, returning %d\n" % rc).encode)
-                    sys.exit(1)
-                elif rc == 0:
-                    with open("(Server)"+fileName, "wb") as f:
-                        payload = framedReceive(convSocket, False)
-                        if not payload:
-                            print(f"[+] Transfer Complete.")
-                        f.write(payload)
-                    f.close()
-            except AttributeError:
-                print("[+] Connection Terminated")
+            except Exception as e:
+                print(f"[+] Error {e} ")
+                flag = True
         
+           
             
-        
-        
 
 
-if __name__ == "__main__":
-    Main()
+if __name__ == '__main__': 
+    Main()                  
