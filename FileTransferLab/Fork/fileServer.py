@@ -9,7 +9,7 @@ def fileWrite(name, data, sock):
         return
     try:
         with open(name, "wb") as f:
-            f.write(data)
+            f.write(data.decode())
         f.close()
         framedSend(sock, b"File Transfered.", False)
     except Exception as e:
