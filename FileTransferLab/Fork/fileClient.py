@@ -9,7 +9,7 @@ def send(name, size, info):
                     
     with open(name, "rb") as f:
         payload = f.read(buff)
-        framedSend(sock, payload.encode(), False)
+        framedSend(sock, payload, False)
     f.close()
     return framedReceive(sock, False)
 

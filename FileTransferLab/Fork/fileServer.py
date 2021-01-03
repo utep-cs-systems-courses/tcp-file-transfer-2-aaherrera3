@@ -8,8 +8,9 @@ def fileWrite(name, data, sock):
         framedSend(sock, b"File already in server.", False)
         return
     try:
+        
         with open(name, "wb") as f:
-            f.write(data.decode())
+            f.write(data)
         f.close()
         framedSend(sock, b"File Transfered.", False)
     except Exception as e:
@@ -20,7 +21,7 @@ def fileWrite(name, data, sock):
 
 def Main():
     address = ""
-    port = 50001
+    port = 50000
 
     serverSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serverSock.bind((address,port))
@@ -29,17 +30,15 @@ def Main():
     flag = False
 
     while not flag:
+        conn, addr = serverSock.accept()
         rc = os.fork()
         if not rc:
             try:
-                conn, addr = serverSock.accept()
                 fileName = framedReceive(conn, False)
                 data = framedReceive(conn, False)
 
                 if data:
-                    fileName = fileName.decode()
-                    data = data
-
+                    fileName = os.path.basename(fileName.decode())
                     fileWrite(fileName, data, conn)
 
             except Exception as e:
