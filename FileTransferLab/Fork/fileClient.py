@@ -5,7 +5,6 @@ def send(name, size, info):
     sock = serverConnect(info)
     buff = int(size)
     framedSend(sock, name.encode(), False)
-    framedSend(sock, str(size).encode(), False)
                     
     with open(name, "rb") as f:
         payload = f.read(buff)
