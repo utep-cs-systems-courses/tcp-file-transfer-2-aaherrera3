@@ -46,12 +46,13 @@ def Main():
 
 
     while 1:
-
-        name, size = getFile()
-
-        respond = send(name, size, info)
-
-        print(respond.decode())
+        try:
+            name, size = getFile()
+        except TypeError:
+            print("[+]Can't send empty file.")
+        else:
+            respond = send(name, size, info)
+            print(respond.decode())
 
         
 
