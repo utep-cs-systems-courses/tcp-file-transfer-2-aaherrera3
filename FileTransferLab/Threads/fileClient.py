@@ -1,5 +1,6 @@
 import socket, sys, re, os 
 from framedSock import framedSend, framedReceive
+import time
 
 def send(name, size, info):
     sock = serverConnect(info)
@@ -49,6 +50,7 @@ def Main():
     while 1:
         try:
             name, size = getFile()
+           #time.sleep(30)
         except TypeError:
             print("[+]Can't send empty file.")
         else:

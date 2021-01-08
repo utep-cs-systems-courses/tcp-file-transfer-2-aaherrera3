@@ -1,6 +1,7 @@
 import socket, sys, re, os 
 from framedSock import framedSend, framedReceive
 from threading import Thread, Lock
+import time
 
 class Server(Thread):
     def __init__(self,sock):
@@ -9,19 +10,20 @@ class Server(Thread):
         self.lock = Lock()
 
     def run(self):
-       self.lock.acquire()
-       try:
-           fileName = framedReceive(self.sock,False)
-           data = framedReceive(self.sock,False)
+        time.sleep(30)
+        self.lock.acquire()
+        try:
+            fileName = framedReceive(self.sock,False)
+            data = framedReceive(self.sock,False)
 
-           if data:
-               fileName =os.path.basename(fileName.decode())
-               fileWrite(fileName,data,self.sock)
-               self.lock.release()
-               return True
-       except Exception as e:
-           print(f"[+] Error: {e}")
-           return False
+            if data:
+                fileName =os.path.basename(fileName.decode())
+                fileWrite(fileName,data,self.sock)
+                self.lock.release()
+                return True
+        except Exception as e:
+            print(f"[+] Error: {e}")
+            return False
        
            
 
@@ -32,7 +34,6 @@ def fileWrite(name, data, sock):
         framedSend(sock, b"File already in server.", False)
         return
     try:
-        
         with open(name, "wb") as f:
             f.write(data)
         f.close()
